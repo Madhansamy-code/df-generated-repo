@@ -1,0 +1,125 @@
+```yaml
+openapi: 3.1.0
+info:
+  title: Employee API
+  description: Microservice for managing employee information.
+  version: 1.0.0
+servers:
+  # The basePath "/" is implicitly handled by defining paths directly from the root.
+  # This server entry defines the base URL where the API is hosted.
+  - url: https://api.example.com
+    description: Production server
+  - url: http://localhost:8080
+    description: Local development server
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns the health status of the service.
+      operationId: getHealthStatus
+      responses:
+        '200':
+          description: Service is healthy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+              examples:
+                okStatus:
+                  value:
+                    status: ok
+
+  /employees/{id}:
+    get:
+      summary: Retrieve an employee by ID
+      description: Returns a single employee based on the provided ID.
+      operationId: getEmployeeById
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier of the employee.
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          examples:
+            employeeId:
+              value: 123
+      responses:
+        '200':
+          description: Successful retrieval of employee data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+              examples:
+                johnDoe:
+                  summary: Example Employee John Doe
+                  value:
+                    id: 101
+                    name: John Doe
+                    role: Software Engineer
+                janeSmith:
+                  summary: Example Employee Jane Smith
+                  value:
+                    id: 102
+                    name: Jane Smith
+                    role: Project Manager
+        '404':
+          description: Employee not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Employee with ID 123 not found.
+        '400':
+          description: Invalid ID supplied.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid employee ID format.
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          description: The current health status of the service.
+          enum: [ok, degraded, unavailable] # 'ok' is the expected successful status
+          example: ok
+
+    Employee:
+      type: object
+      required:
+        - id
+        - name
+        - role
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The unique identifier for the employee.
+          example: 101
+        name:
+          type: string
+          description: The full name of the employee.
+          example: John Doe
+        role:
+          type: string
+          description: The job role or position of the employee.
+          example: Software Engineer
+      description: Represents an employee in the system.
+```
